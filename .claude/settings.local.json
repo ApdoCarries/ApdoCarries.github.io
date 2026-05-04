@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ffprobe *)",
+      "PowerShell(Get-Command *)",
+      "PowerShell(winget list *)",
+      "PowerShell(Test-Path *)",
+      "PowerShell($ff = \"$env:USERPROFILE\\\\Downloads\\\\ffmpeg-tools\\\\bin\"; & \"$ff\\\\ffprobe.exe\" -v error -select_streams v:0 -show_entries stream=width,height,r_frame_rate,nb_frames,duration,codec_name -of default=noprint_wrappers=1 \"C:\\\\Users\\\\colmi\\\\Downloads\\\\Cancer_cell_growth_and_evolution_202605031427.mp4\")"
+    ]
+  }
+}
