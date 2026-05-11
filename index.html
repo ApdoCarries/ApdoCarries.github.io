@@ -305,12 +305,16 @@ body:not(.cursor-over) #cursor-ring { opacity: 0; }
 /* Hero content */
 .hero-content-wrap {
   position: relative; z-index: 10;
-  width: min(var(--container), 100% - 40px); margin-inline: auto;
+  width: min(1480px, 100% - 24px); margin-inline: auto;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 60px;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+  gap: clamp(24px, 4vw, 80px);
   align-items: center;
   pointer-events: none;
+  padding-inline: clamp(8px, 1.5vw, 20px);
+}
+.hero-left {
+  transition: opacity 0.4s ease, filter 0.4s ease;
 }
 
 .hero-left {
@@ -318,19 +322,23 @@ body:not(.cursor-over) #cursor-ring { opacity: 0; }
   position: relative;
   isolation: isolate;
 }
+.hero-left__main {
+  transition: opacity 0.4s ease, filter 0.4s ease, transform 0.4s ease;
+  will-change: opacity, transform, filter;
+}
 /* Soft radial scrim improves legibility over the live video */
 .hero-left::before {
   content: '';
   position: absolute;
-  inset: -40px -60px -40px -80px;
-  background: radial-gradient(ellipse at 30% 50%,
-              oklch(0.05 0.02 265 / 0.78) 0%,
-              oklch(0.05 0.02 265 / 0.55) 35%,
-              oklch(0.05 0.02 265 / 0.20) 65%,
+  inset: -40px 20% -40px -120px;
+  background: radial-gradient(ellipse at 25% 50%,
+              oklch(0.05 0.02 265 / 0.62) 0%,
+              oklch(0.05 0.02 265 / 0.38) 35%,
+              oklch(0.05 0.02 265 / 0.12) 65%,
               transparent 90%);
   z-index: -1;
   pointer-events: none;
-  filter: blur(12px);
+  filter: blur(18px);
 }
 .hero__sub,
 .hero__stat-label {
@@ -340,32 +348,61 @@ body:not(.cursor-over) #cursor-ring { opacity: 0; }
   text-shadow: 0 4px 32px oklch(0.05 0.02 265 / 0.6);
 }
 .hero__stats {
-  padding: 18px 22px;
-  border-radius: var(--radius-md);
-  background: oklch(0.07 0.025 265 / 0.45);
-  border: 1px solid oklch(0.63 0.20 245 / 0.14);
-  backdrop-filter: blur(14px) saturate(1.2);
-  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  --stats-opacity: 1;
+  --stats-blur: 0px;
+  --stats-drift: 0px;
+  padding: 22px 26px;
+  border-radius: 18px;
+  background: oklch(0.07 0.025 265 / 0.32);
+  border: 1px solid oklch(0.63 0.20 245 / 0.10);
+  backdrop-filter: blur(20px) saturate(1.3);
+  -webkit-backdrop-filter: blur(20px) saturate(1.3);
+  filter: blur(var(--stats-blur));
+  transform: translate3d(0, var(--stats-drift), 0);
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.06),
+    0 24px 48px -24px oklch(0.05 0.02 265 / 0.55);
+}
+.hero__stats > div {
+  opacity: 0;
+  transform: scale(0.92);
+  filter: blur(14px);
+  transition:
+    opacity 1.1s cubic-bezier(.16,.84,.2,1),
+    transform 1.1s cubic-bezier(.16,.84,.2,1),
+    filter 0.85s cubic-bezier(.16,.84,.2,1);
+  will-change: opacity, transform, filter;
+}
+.hero__stats > div.in {
+  opacity: 1;
+  transform: scale(1);
+  filter: blur(0);
+}
+.hero__stats {
+  opacity: 0;
+  transition:
+    opacity 0.9s cubic-bezier(.16,.84,.2,1),
+    transform 0.7s cubic-bezier(.16,.84,.2,1),
+    filter 0.7s cubic-bezier(.16,.84,.2,1);
+}
+.hero__stats.in {
+  opacity: var(--stats-opacity, 1);
 }
 .hero__stat-num { color: var(--text); }
 
-/* Right-column timeline gets a subtle glass backing per stage */
-.hero-stage.revealed {
-  padding: 18px 18px;
-  border-radius: 14px;
-  background: oklch(0.07 0.025 265 / 0.40);
-  border: 1px solid oklch(0.63 0.20 245 / 0.12);
-  border-bottom-color: oklch(0.63 0.20 245 / 0.12);
-  backdrop-filter: blur(12px) saturate(1.15);
-  -webkit-backdrop-filter: blur(12px) saturate(1.15);
-  margin-bottom: 8px;
-}
-.hero-stage.revealed:first-child { border-top-color: oklch(0.63 0.20 245 / 0.12); }
+/* Right-column timeline — only the active phase is visible at a time. */
 .hero-stage.active {
-  border-color: oklch(0.63 0.20 245 / 0.30);
-  background: oklch(0.07 0.025 265 / 0.55);
+  padding: 18px 20px;
+  border-radius: 16px;
+  background: oklch(0.07 0.025 265 / 0.5);
+  border-color: oklch(0.63 0.20 245 / 0.36);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.06),
+    0 20px 44px -18px oklch(0.63 0.20 245 / 0.4);
 }
-.hero-stage__desc { color: oklch(0.85 0.02 265); }
+.hero-stage__desc { color: oklch(0.88 0.02 265); }
 
 .hero__badge {
   display: inline-flex; align-items: center; gap: 8px;
@@ -408,48 +445,57 @@ body:not(.cursor-over) #cursor-ring { opacity: 0; }
 
 /* Stage timeline — right column */
 .hero-timeline {
-  display: flex; flex-direction: column; gap: 0;
+  display: flex; flex-direction: column;
   pointer-events: all;
+  position: relative;
+  min-height: 220px;
 }
 .hero-stage {
-  display: flex; gap: 20px; align-items: flex-start;
-  padding: 20px 0;
-  border-bottom: 1px solid transparent;
-  /* hidden by default — revealed sequentially as scroll progresses */
+  display: flex; gap: 18px; align-items: flex-start;
+  padding: 18px 20px;
+  border-radius: 16px;
+  border: 1px solid transparent;
+  position: absolute; inset: 0;
+  /* base: hidden — pulled in from the right */
   opacity: 0;
-  transform: translateX(80px);
-  filter: blur(8px);
+  transform: translate3d(180px, 0, 0) scale(0.84) rotate(1.5deg);
+  filter: blur(18px) saturate(0.6);
   transition:
-    opacity 1.05s cubic-bezier(.16,.84,.2,1),
-    transform 1.05s cubic-bezier(.16,.84,.2,1),
-    filter 0.9s cubic-bezier(.16,.84,.2,1),
-    border-color 0.5s ease;
+    opacity 0.9s cubic-bezier(.16,.84,.24,1.04),
+    transform 1.05s cubic-bezier(.16,.84,.24,1.04),
+    filter 0.85s cubic-bezier(.16,.84,.24,1.04),
+    border-color 0.5s ease,
+    background 0.5s ease,
+    box-shadow 0.5s ease;
   pointer-events: none;
   will-change: opacity, transform, filter;
 }
-.hero-stage:first-child { border-top: 1px solid transparent; }
-.hero-stage.revealed {
-  opacity: 0.55;
-  transform: translateX(0);
-  filter: blur(0);
-  pointer-events: auto;
-  border-bottom-color: var(--border);
-}
-.hero-stage.revealed:first-child { border-top-color: var(--border); }
+/* Active phase — in place */
 .hero-stage.active {
   opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1) rotate(0);
+  filter: blur(0) saturate(1);
+  pointer-events: auto;
+}
+/* Phase already shown — exits upward and fades */
+.hero-stage.past {
+  opacity: 0;
+  transform: translate3d(0, -60px, 0) scale(0.92);
+  filter: blur(10px) saturate(0.7);
 }
 .hero-stage__num {
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 0.65rem; font-weight: 700; letter-spacing: 0.18em;
-  color: var(--blue); flex-shrink: 0; padding-top: 3px;
+  font-size: 0.62rem; font-weight: 700; letter-spacing: 0.22em;
+  color: var(--blue); flex-shrink: 0; padding-top: 4px;
   text-transform: uppercase;
+  min-width: 52px;
 }
 .hero-stage__title {
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 0.95rem; font-weight: 600; margin-bottom: 4px;
+  font-size: 0.98rem; font-weight: 600; margin-bottom: 5px;
+  letter-spacing: -0.01em;
 }
-.hero-stage__desc { font-size: 0.82rem; color: var(--text-muted); line-height: 1.55; }
+.hero-stage__desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; }
 .hero-stage__indicator {
   width: 3px; height: 100%; min-height: 50px;
   border-radius: 2px;
@@ -525,8 +571,8 @@ body:not(.cursor-over) #cursor-ring { opacity: 0; }
 /* ── Hero stats ───────────────────────────────────────────── */
 .hero__stats {
   display: flex; gap: 40px;
-  margin-top: 64px; padding-top: 36px;
-  border-top: 1px solid var(--border);
+  margin-top: 56px;
+  border-top: none;
 }
 .hero__stat-num {
   font-family: 'Space Grotesk', sans-serif;
@@ -619,10 +665,10 @@ body:not(.cursor-over) #cursor-ring { opacity: 0; }
 }
 .section__text--center { text-align: center; margin-inline: auto; }
 
-/* ── Reveal animations — Apple/Meta-tier "pulled into place" ──
-   Spring-like easing matched to hero phase reveals.
-   Compose: opacity + translate + scale + blur (GPU-accelerated).
-   prefers-reduced-motion respeted at the bottom of the file.
+/* ── Reveal animations — IN-PLACE fade (no Y drift) ──────────
+   Same mechanic as the hero Fase 04 reveal: elements emerge
+   in place via opacity + blur + micro-scale, and *unwind* the
+   same way when scrolled back. Nothing slides up the page.
    ─────────────────────────────────────────────────────────── */
 .reveal-up,
 .reveal-fade,
@@ -632,19 +678,16 @@ body:not(.cursor-over) #cursor-ring { opacity: 0; }
 .reveal-lift,
 .reveal-blur {
   opacity: 0;
-  filter: blur(12px);
+  filter: blur(16px);
+  transform: scale(.94);
   will-change: opacity, transform, filter;
   transition:
-    opacity 1.1s cubic-bezier(.16,.84,.2,1),
-    transform 1.1s cubic-bezier(.16,.84,.2,1),
-    filter 0.85s cubic-bezier(.16,.84,.2,1);
+    opacity 1s cubic-bezier(.16,.84,.2,1),
+    transform 1s cubic-bezier(.16,.84,.2,1),
+    filter 0.8s cubic-bezier(.16,.84,.2,1);
 }
-.reveal-up    { transform: translate3d(0, 64px, 0) scale(.965); }
-.reveal-fade  { transform: scale(.985); filter: blur(8px); }
-.reveal-left  { transform: translate3d(-90px, 0, 0) scale(.965); }
-.reveal-right { transform: translate3d( 90px, 0, 0) scale(.965); }
-.reveal-scale { transform: scale(.86); filter: blur(14px); }
-.reveal-lift  { transform: translate3d(0, 110px, 0) scale(.94); filter: blur(18px); }
+.reveal-scale { transform: scale(.86); filter: blur(18px); }
+.reveal-lift  { transform: scale(.92); filter: blur(20px); }
 .reveal-blur  { transform: scale(1.02); filter: blur(22px); }
 
 .reveal-up.visible,
@@ -655,24 +698,24 @@ body:not(.cursor-over) #cursor-ring { opacity: 0; }
 .reveal-lift.visible,
 .reveal-blur.visible {
   opacity: 1;
-  transform: translate3d(0, 0, 0) scale(1);
+  transform: scale(1);
   filter: blur(0);
 }
 
-/* Stagger container — children pulled in sequentially */
+/* Stagger container — children emerge in place, in sequence */
 .stagger-children > * {
   opacity: 0;
-  transform: translate3d(0, 50px, 0) scale(.97);
-  filter: blur(10px);
+  transform: scale(.95);
+  filter: blur(14px);
   transition:
-    opacity 0.95s cubic-bezier(.16,.84,.2,1),
-    transform 0.95s cubic-bezier(.16,.84,.2,1),
+    opacity 0.9s cubic-bezier(.16,.84,.2,1),
+    transform 0.9s cubic-bezier(.16,.84,.2,1),
     filter 0.7s cubic-bezier(.16,.84,.2,1);
   will-change: opacity, transform, filter;
 }
 .stagger-children.visible > * {
   opacity: 1;
-  transform: translate3d(0, 0, 0) scale(1);
+  transform: scale(1);
   filter: blur(0);
 }
 .stagger-children.visible > *:nth-child(1) { transition-delay: .04s; }
@@ -689,18 +732,18 @@ body:not(.cursor-over) #cursor-ring { opacity: 0; }
 .reveal-words .line span {
   display: inline-block;
   opacity: 0;
-  transform: translate3d(0, 0.6em, 0) rotate(2deg);
-  filter: blur(8px);
+  transform: scale(.96);
+  filter: blur(10px);
   transition:
-    opacity 0.9s cubic-bezier(.16,.84,.2,1),
-    transform 0.9s cubic-bezier(.16,.84,.2,1),
-    filter 0.7s cubic-bezier(.16,.84,.2,1);
+    opacity 0.85s cubic-bezier(.16,.84,.2,1),
+    transform 0.85s cubic-bezier(.16,.84,.2,1),
+    filter 0.65s cubic-bezier(.16,.84,.2,1);
   will-change: opacity, transform, filter;
 }
 .reveal-words.visible .word,
 .reveal-words.visible .line span {
   opacity: 1;
-  transform: translate3d(0, 0, 0) rotate(0);
+  transform: scale(1);
   filter: blur(0);
 }
 .reveal-words.visible .word:nth-child(1)  { transition-delay: .05s; }
@@ -722,8 +765,32 @@ body:not(.cursor-over) #cursor-ring { opacity: 0; }
   }
 }
 
+/* ══ UNIFIED BACKGROUND — single continuous column ════════ */
+.section--problem,
+.section--solution,
+.section--tech,
+.section--demo,
+.section--applications,
+.section--roadmap,
+.section--faq,
+.section--closing,
+.section--contact,
+.section--refs { background: var(--bg); }
+.section--preview { background: var(--bg); overflow: hidden; position: relative; }
+.section--preview::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(to right, oklch(0.63 0.20 245 / 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, oklch(0.63 0.20 245 / 0.04) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 30%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 30%, transparent 70%);
+  pointer-events: none;
+  opacity: 0.6;
+}
+
 /* ══ PROBLEM SECTION ══════════════════════════════════════ */
-.section--problem { background: var(--bg); }
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
 .stat-list { display: flex; flex-direction: column; gap: 0; margin-top: 40px; }
 .stat-list li {
@@ -848,9 +915,10 @@ body:not(.cursor-over) #cursor-ring { opacity: 0; }
 }
 
 /* ══ SOLUTION ═════════════════════════════════════════════ */
-.section--solution { background: var(--bg-2); }
 .solution__head { text-align: center; margin-bottom: 64px; }
-.flow { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; align-items: start; gap: 0; margin-bottom: 60px; }
+.flow { display: flex; flex-direction: column; gap: 28px; margin-bottom: 60px; max-width: 720px; margin-inline: auto; position: relative; }
+.flow::before { content: ''; position: absolute; left: 50%; top: 8%; bottom: 8%; width: 2px; transform: translateX(-50%); background: linear-gradient(180deg, transparent, oklch(0.63 0.20 245 / 0.35), oklch(0.63 0.20 295 / 0.35), transparent); pointer-events: none; z-index: 0; }
+.flow__step { z-index: 1; }
 .flow__step {
   position: relative;
   isolation: isolate;
@@ -882,24 +950,39 @@ body:not(.cursor-over) #cursor-ring { opacity: 0; }
 .flow__num { font-family: 'Space Grotesk', sans-serif; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em; color: var(--blue); margin-bottom: 14px; }
 .flow__step h3 { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 600; margin-bottom: 10px; }
 .flow__step p { font-size: 0.88rem; color: var(--text-muted); line-height: 1.65; }
-.flow__connector { display: flex; align-items: center; justify-content: center; padding-top: 48px; width: 60px; }
-.flow__connector svg { color: var(--border-hi); }
+.flow__connector { display: flex; align-items: center; justify-content: center; padding: 4px 0; width: 100%; transform: rotate(90deg); opacity: 0.4; }
+.flow__connector svg { color: var(--blue); }
 
 /* ══ TECHNOLOGY ═══════════════════════════════════════════ */
-.section--tech { background: var(--bg); overflow: hidden; }
+.section--tech { overflow: hidden; }
 .tech__inner { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
-.kpi-grid { display: flex; flex-direction: column; gap: 16px; margin-top: 40px; }
+.kpi-grid {
+  display: flex; flex-direction: column; gap: 16px; margin-top: 40px;
+  position: relative;
+}
 .kpi {
   position: relative;
+  width: 530px;
+  max-width: 100%;
+  height: 118px;
   transition: transform 0.5s cubic-bezier(.16,.84,.2,1),
               border-color 0.4s ease,
               box-shadow 0.4s ease;
   will-change: transform;
   background: var(--bg-2); border: 1px solid var(--border);
   border-radius: var(--radius-md); padding: 22px 24px;
-  display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: start;
-  transition: border-color 0.3s;
+  display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: center;
+  overflow: hidden;
+  isolation: isolate;
 }
+.kpi__bg {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.85;
+}
+.kpi > *:not(.kpi__bg) { position: relative; z-index: 1; }
 .kpi:hover {
   border-color: oklch(0.63 0.20 245 / 0.55);
   transform: translateX(6px);
@@ -916,13 +999,15 @@ body:not(.cursor-over) #cursor-ring { opacity: 0; }
 .kpi p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; }
 .tech__canvas-wrap {
   position: relative; border-radius: var(--radius-xl);
-  overflow: hidden; aspect-ratio: 1;
+  overflow: hidden;
+  width: 528px; height: 528px;
+  max-width: 100%; aspect-ratio: 1;
+  margin-inline: auto;
   background: var(--bg-2); border: 1px solid var(--border);
 }
-#cell-canvas { width: 100%; height: 100%; }
+#cell-canvas { width: 100%; height: 100%; display: block; }
 
 /* ══ DEMO ═════════════════════════════════════════════════ */
-.section--demo { background: var(--bg-2); }
 .demo__head { text-align: center; margin-bottom: 60px; }
 .demo__card {
   background: var(--bg-3); border: 1px solid var(--border);
@@ -966,20 +1051,272 @@ body:not(.cursor-over) #cursor-ring { opacity: 0; }
 .demo__note { font-size: 0.78rem; color: var(--text-dim); text-align: center; margin-top: 18px; }
 .demo__note strong { color: var(--text-muted); }
 
-/* ══ APP PREVIEW ══════════════════════════════════════════ */
-.section--preview { background: var(--bg); overflow: hidden; }
-.preview { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
-.preview__points { margin-top: 28px; display: flex; flex-direction: column; gap: 12px; }
-.preview__points li { display: flex; align-items: center; gap: 12px; font-size: 0.9rem; color: var(--text-muted); }
-.preview__points li::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--grad); flex-shrink: 0; box-shadow: 0 0 8px var(--blue-glow); }
-.phone { position: relative; margin-inline: auto; width: 280px; }
-.phone__shell { background: var(--bg-3); border: 1.5px solid var(--border-hi); border-radius: 44px; padding: 12px; box-shadow: var(--shadow-card), 0 0 60px oklch(0.63 0.20 245 / 0.08); }
-.phone__notch { width: 80px; height: 24px; border-radius: 0 0 16px 16px; background: var(--bg); margin: 0 auto 8px; }
-.phone__screen { border-radius: 34px; overflow: hidden; background: var(--bg-2); aspect-ratio: 9/19; }
-.phone__glow { position: absolute; bottom: -40px; left: 50%; transform: translateX(-50%); width: 200px; height: 60px; border-radius: 50%; background: oklch(0.63 0.20 245 / 0.25); filter: blur(30px); }
+/* ══ APP PREVIEW (chrome only, bg unified above) ══════════ */
+.preview { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; position: relative; z-index: 1; }
+.preview__points { margin-top: 32px; display: flex; flex-direction: column; gap: 14px; }
+.preview__points li {
+  display: flex; align-items: center; gap: 14px;
+  font-size: 0.92rem; color: var(--text-muted);
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: oklch(0.07 0.025 265 / 0.4);
+  border: 1px solid oklch(0.63 0.20 245 / 0.08);
+  backdrop-filter: blur(10px);
+  transition: transform 0.4s cubic-bezier(.16,.84,.2,1),
+              border-color 0.3s ease,
+              background 0.3s ease;
+}
+.preview__points li:hover {
+  transform: translateX(6px);
+  border-color: oklch(0.63 0.20 245 / 0.28);
+  background: oklch(0.07 0.025 265 / 0.6);
+}
+.preview__points li::before {
+  content: ''; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--grad); flex-shrink: 0;
+  box-shadow: 0 0 12px var(--blue-glow);
+}
+
+/* Phone — Apple-style frame, more polished */
+.phone {
+  position: relative;
+  margin-inline: auto;
+  width: 300px;
+  perspective: 1600px;
+  --phone-rx: 18deg;
+  --phone-ry: 38deg;
+  --phone-rz: -6deg;
+}
+.phone__shell {
+  background: linear-gradient(155deg, oklch(0.18 0.018 265), oklch(0.09 0.020 265));
+  border: 1.5px solid oklch(0.32 0.020 265);
+  border-radius: 52px;
+  padding: 12px;
+  box-shadow:
+    0 1px 0 oklch(1 0 0 / 0.08) inset,
+    0 0 0 1px oklch(0 0 0 / 0.45),
+    0 70px 100px -30px oklch(0 0 0 / 0.7),
+    0 0 100px oklch(0.63 0.20 245 / 0.18);
+  transform: rotateX(var(--phone-rx)) rotateY(var(--phone-ry)) rotateZ(var(--phone-rz));
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.phone__shell::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, oklch(1 0 0 / 0.12), transparent 45%);
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+.phone__notch {
+  width: 108px; height: 30px;
+  border-radius: 100px;
+  background: oklch(0.04 0.02 265);
+  margin: 8px auto 10px;
+  position: relative;
+  z-index: 2;
+  box-shadow: inset 0 0 0 1px oklch(0.18 0.02 265);
+}
+.phone__notch::after {
+  content: '';
+  position: absolute;
+  right: 14px; top: 50%;
+  transform: translateY(-50%);
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: oklch(0.10 0.02 265);
+  box-shadow: inset 0 0 0 1.5px oklch(0.40 0.10 245);
+}
+.phone__screen {
+  border-radius: 42px;
+  overflow: hidden;
+  background: var(--bg-2);
+  aspect-ratio: 9/19.5;
+  position: relative;
+  margin-top: -38px;
+  box-shadow: inset 0 0 0 1px oklch(0 0 0 / 0.6);
+}
+.phone-app { padding-top: 56px; }
+.phone__glow {
+  position: absolute;
+  bottom: -50px; left: 50%;
+  transform: translateX(-50%);
+  width: 240px; height: 80px;
+  border-radius: 50%;
+  background: oklch(0.63 0.20 245 / 0.32);
+  filter: blur(40px);
+  z-index: -1;
+}
+.phone__glow--purple {
+  position: absolute;
+  top: 30%; right: -60px;
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  background: oklch(0.63 0.20 295 / 0.25);
+  filter: blur(60px);
+  z-index: -2;
+}
+
+/* Phone screen content */
+.phone-app {
+  width: 100%; height: 100%;
+  display: flex; flex-direction: column;
+  background: linear-gradient(180deg, oklch(0.09 0.025 265), oklch(0.07 0.025 265));
+  padding: 20px 18px 24px;
+  position: relative;
+  overflow: hidden;
+}
+.phone-app__statusbar {
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: 'Space Grotesk', monospace;
+  font-size: 0.6rem; font-weight: 600;
+  color: var(--text);
+  padding: 0 4px 14px;
+  letter-spacing: 0.04em;
+}
+.phone-app__statusbar-icons {
+  display: flex; gap: 4px; align-items: center;
+  color: var(--text-muted);
+}
+.phone-app__brand {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.62rem; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--blue);
+  margin-bottom: 6px;
+}
+.phone-app__title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1rem; font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 14px;
+  letter-spacing: -0.02em;
+}
+.phone-app__visual {
+  width: 100%;
+  aspect-ratio: 1.4 / 1;
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at 30% 40%, oklch(0.63 0.20 245 / 0.35), transparent 50%),
+    radial-gradient(circle at 70% 60%, oklch(0.63 0.20 295 / 0.3), transparent 55%),
+    oklch(0.05 0.02 265);
+  border: 1px solid oklch(0.63 0.20 245 / 0.18);
+  margin-bottom: 12px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.phone-app__visual::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(circle at 25% 35%, oklch(0.63 0.20 245 / 0.5) 0%, transparent 8%),
+    radial-gradient(circle at 60% 50%, oklch(0.63 0.20 295 / 0.45) 0%, transparent 9%),
+    radial-gradient(circle at 45% 70%, oklch(0.7 0.15 265 / 0.4) 0%, transparent 7%),
+    radial-gradient(circle at 80% 35%, oklch(0.63 0.20 245 / 0.35) 0%, transparent 6%),
+    radial-gradient(circle at 30% 75%, oklch(0.63 0.20 245 / 0.3) 0%, transparent 5%);
+  filter: blur(2px);
+}
+.phone-app__visual::after {
+  content: '';
+  position: absolute;
+  width: 50%; height: 50%;
+  border-radius: 50%;
+  border: 1.5px solid oklch(0.63 0.20 245 / 0.55);
+  box-shadow:
+    0 0 0 1px oklch(0.63 0.20 245 / 0.1),
+    0 0 24px oklch(0.63 0.20 245 / 0.3);
+  animation: phone-scan 3s ease-in-out infinite;
+}
+@keyframes phone-scan {
+  0%,100% { transform: scale(1); opacity: 0.6; }
+  50%     { transform: scale(1.15); opacity: 1; }
+}
+.phone-app__result {
+  background: oklch(0.10 0.02 265 / 0.7);
+  border: 1px solid oklch(0.7 0.16 145 / 0.35);
+  border-radius: 12px;
+  padding: 12px 14px;
+  backdrop-filter: blur(10px);
+  margin-bottom: 10px;
+}
+.phone-app__result-row {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 8px;
+}
+.phone-app__result-label {
+  font-size: 0.58rem;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.phone-app__result-tag {
+  font-size: 0.55rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: oklch(0.7 0.16 145 / 0.18);
+  color: oklch(0.78 0.16 145);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+.phone-app__result-val {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.05rem; font-weight: 700;
+  color: oklch(0.78 0.16 145);
+  margin-bottom: 8px;
+  letter-spacing: -0.01em;
+}
+.phone-app__result-bar {
+  height: 4px;
+  background: oklch(0.18 0.02 265);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+.phone-app__result-bar-fill {
+  position: absolute; inset: 0;
+  width: 78%;
+  background: linear-gradient(90deg, oklch(0.6 0.14 145), oklch(0.7 0.16 165));
+  border-radius: 2px;
+  box-shadow: 0 0 10px oklch(0.7 0.16 145 / 0.5);
+}
+.phone-app__metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.phone-app__metric {
+  background: oklch(0.10 0.02 265 / 0.5);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+.phone-app__metric-label {
+  font-family: 'Space Grotesk', monospace;
+  font-size: 0.5rem;
+  color: var(--text-dim);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+.phone-app__metric-val {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.78rem; font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
 
 /* ══ APPLICATIONS ═════════════════════════════════════════ */
-.section--applications { background: var(--bg-2); }
+.section--applications { position: relative; overflow: hidden; }
+.section-bg-cells { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+.section--tech { position: relative; }
+.section--tech .container { position: relative; z-index: 1; }
+.section--applications .container { position: relative; z-index: 1; }
+.section-bg-cells--fade { opacity: 0; transition: opacity 0.9s ease; }
+.section-bg-cells--fade.in { opacity: 1; }
 .apps__head { text-align: center; margin-bottom: 60px; }
 .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
 .card {
@@ -1037,7 +1374,6 @@ body:not(.cursor-over) #cursor-ring { opacity: 0; }
 .card p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.65; }
 
 /* ══ ROADMAP ══════════════════════════════════════════════ */
-.section--roadmap { background: var(--bg); }
 .roadmap__head { text-align: center; margin-bottom: 72px; }
 .timeline { position: relative; max-width: 720px; margin-inline: auto; padding-left: 48px; }
 .timeline::before { content: ''; position: absolute; left: 11px; top: 12px; bottom: 12px; width: 2px; background: var(--border); }
@@ -1087,7 +1423,6 @@ body:not(.cursor-over) #cursor-ring { opacity: 0; }
 .timeline__badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--blue); box-shadow: 0 0 6px var(--blue); animation: pulse-dot 2s infinite; }
 
 /* ══ FAQ ══════════════════════════════════════════════════ */
-.section--faq { background: var(--bg-2); }
 .faq__head { text-align: center; margin-bottom: 52px; }
 .faq__list { max-width: 680px; margin-inline: auto; display: flex; flex-direction: column; gap: 12px; }
 .faq__item {
@@ -1113,14 +1448,13 @@ body:not(.cursor-over) #cursor-ring { opacity: 0; }
 .faq__body p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.7; }
 
 /* ══ CLOSING CTA ══════════════════════════════════════════ */
-.section--closing { background: var(--bg); text-align: center; padding-block: 160px; position: relative; overflow: hidden; }
+.section--closing { text-align: center; padding-block: 160px; position: relative; overflow: hidden; }
 .closing__orb { position: absolute; width: 700px; height: 700px; border-radius: 50%; background: oklch(0.63 0.20 270 / 0.07); filter: blur(100px); left: 50%; top: 50%; transform: translate(-50%, -50%); pointer-events: none; }
 .closing__eyebrow { margin-bottom: 20px; }
 .closing__title { font-family: 'Space Grotesk', sans-serif; font-size: clamp(2rem, 5vw, 3.8rem); font-weight: 700; line-height: 1.15; letter-spacing: -0.025em; max-width: 800px; margin-inline: auto; margin-bottom: 40px; }
 .closing__ctas { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
 
 /* ══ CONTACT ══════════════════════════════════════════════ */
-.section--contact { background: var(--bg-2); }
 .contact__head { text-align: center; margin-bottom: 52px; }
 .contact__form { max-width: 600px; margin-inline: auto; display: flex; flex-direction: column; gap: 18px; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -1137,7 +1471,6 @@ body:not(.cursor-over) #cursor-ring { opacity: 0; }
 .contact__note { font-size: 0.8rem; color: var(--text-dim); text-align: center; }
 
 /* ══ REFS ═════════════════════════════════════════════════ */
-.section--refs { background: var(--bg); }
 .refs__head { text-align: center; margin-bottom: 48px; }
 .refs__list { max-width: 760px; margin-inline: auto; display: grid; gap: 18px; }
 .refs__item {
@@ -1270,6 +1603,9 @@ textarea:focus-visible {
 }
 
 /* ══ RESPONSIVE ═══════════════════════════════════════════ */
+@media (max-width: 1100px) {
+  .hero-content-wrap { grid-template-columns: 1fr; gap: 48px; }
+}
 @media (max-width: 900px) {
   :root { --section-gap: 90px; }
   .hero-content-wrap { grid-template-columns: 1fr; }
@@ -1306,7 +1642,7 @@ textarea:focus-visible {
   <header class="nav" id="nav">
     <div class="nav__inner">
       <a href="#hero" class="nav__brand" aria-label="Inicio Onco AI">
-        <img src="assets/logo.png" alt="Onco AI" class="nav__brand-logo" width="36" height="36" />
+                <svg class="nav__brand-logo" width="36" height="36" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="oncoLogoGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#5b9fff"/><stop offset="100%" stop-color="#a87fff"/></linearGradient></defs><circle cx="32" cy="32" r="26" fill="url(#oncoLogoGrad)"/><circle cx="32" cy="32" r="11" fill="#06071e"/></svg>
         <span>Onco<span class="accent-grad">AI</span></span>
       </a>
       <nav class="nav__links" aria-label="Navegación principal">
@@ -1381,23 +1717,25 @@ textarea:focus-visible {
 
           <!-- Left: headline + CTA -->
           <div class="hero-left">
-            <div class="hero__badge">Inteligencia artificial médica</div>
+            <div class="hero-left__main">
+              <div class="hero__badge">Inteligencia artificial médica</div>
 
-            <h1 class="hero__title">
-              <span class="line"><span class="word">Onco</span><span class="word accent-grad">AI</span></span>
-            </h1>
+              <h1 class="hero__title">
+                <span class="line"><span class="word">Onco</span><span class="word accent-grad">AI</span></span>
+              </h1>
 
-            <p class="hero__sub">
-              La inteligencia artificial que puede cambiar la detección del cáncer.
-              Análisis celular preciso. Resultados en segundos.
-            </p>
+              <p class="hero__sub">
+                La inteligencia artificial que puede cambiar la detección del cáncer.
+                Análisis celular preciso. Resultados en segundos.
+              </p>
 
-            <div class="hero__ctas">
-              <a href="#demo" class="btn btn--primary">Ver demo interactiva</a>
-              <a href="#solucion" class="btn btn--ghost">Cómo funciona</a>
+              <div class="hero__ctas">
+                <a href="#demo" class="btn btn--primary">Ver demo interactiva</a>
+                <a href="#solucion" class="btn btn--ghost">Cómo funciona</a>
+              </div>
             </div>
 
-            <div class="hero__stats">
+            <div class="hero__stats" style="width: 504px">
               <div>
                 <div class="hero__stat-num">10M+</div>
                 <div class="hero__stat-label">muertes anuales por cáncer</div>
@@ -1415,7 +1753,7 @@ textarea:focus-visible {
 
           <!-- Right: cell evolution stages -->
           <div class="hero-timeline" id="heroTimeline">
-            <div class="hero-stage active" id="stage0">
+            <div class="hero-stage active" id="stage0" style="height: 140px;">
               <div class="hero-stage__indicator"></div>
               <div>
                 <div class="hero-stage__num">Fase 01</div>
@@ -1423,7 +1761,7 @@ textarea:focus-visible {
                 <div class="hero-stage__desc">Núcleo regular, membrana definida. Sin signos de proliferación anormal.</div>
               </div>
             </div>
-            <div class="hero-stage" id="stage1">
+            <div class="hero-stage" id="stage1" style="height: 140px;">
               <div class="hero-stage__indicator"></div>
               <div>
                 <div class="hero-stage__num">Fase 02</div>
@@ -1431,7 +1769,7 @@ textarea:focus-visible {
                 <div class="hero-stage__desc">Las células comienzan a multiplicarse de manera irregular. Radio nuclear aumenta.</div>
               </div>
             </div>
-            <div class="hero-stage" id="stage2">
+            <div class="hero-stage" id="stage2" style="height: 140px;">
               <div class="hero-stage__indicator"></div>
               <div>
                 <div class="hero-stage__num">Fase 03</div>
@@ -1439,7 +1777,7 @@ textarea:focus-visible {
                 <div class="hero-stage__desc">Células malignas confinadas. Textura irregular. Compacidad elevada.</div>
               </div>
             </div>
-            <div class="hero-stage" id="stage3">
+            <div class="hero-stage" id="stage3" style="height: 140px;">
               <div class="hero-stage__indicator"></div>
               <div>
                 <div class="hero-stage__num">Fase 04</div>
@@ -1502,7 +1840,7 @@ textarea:focus-visible {
           <div class="problem__visual-frame">
             <img
               class="problem__visual-img"
-              src="assets/imagen4.png"
+              src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%201000%22%3E%3Cdefs%3E%3CradialGradient%20id%3D%22g%22%20cx%3D%2250%25%22%20cy%3D%2250%25%22%20r%3D%2260%25%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%231a2050%22%2F%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%2306071a%22%2F%3E%3C%2FradialGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22800%22%20height%3D%221000%22%20fill%3D%22url(%23g)%22%2F%3E%3Cg%20fill%3D%22rgba(168%2C127%2C255%2C0.18)%22%3E%3Ccircle%20cx%3D%22200%22%20cy%3D%22300%22%20r%3D%2260%22%2F%3E%3Ccircle%20cx%3D%22500%22%20cy%3D%22450%22%20r%3D%2280%22%2F%3E%3Ccircle%20cx%3D%22350%22%20cy%3D%22700%22%20r%3D%2250%22%2F%3E%3Ccircle%20cx%3D%22650%22%20cy%3D%22780%22%20r%3D%2245%22%2F%3E%3Ccircle%20cx%3D%22160%22%20cy%3D%22820%22%20r%3D%2235%22%2F%3E%3C%2Fg%3E%3Ctext%20x%3D%2224%22%20y%3D%22980%22%20fill%3D%22rgba(180%2C180%2C220%2C0.4)%22%20font-family%3D%22monospace%22%20font-size%3D%2214%22%3Eplaceholder%20%C2%B7%20imagen4%3C%2Ftext%3E%3C%2Fsvg%3E"
               alt="Imagen de microscopía FNA con tinción H&E — muestra clínica"
               loading="lazy"
               decoding="async"
@@ -1536,24 +1874,18 @@ textarea:focus-visible {
             y detectar indicios de cáncer — ofreciendo a médicos y pacientes una ventaja sobre el tiempo.
           </p>
         </div>
-        <div class="flow stagger-children">
-          <div class="flow__step">
+        <div class="flow">
+          <div class="flow__step reveal-left">
             <div class="flow__num">01</div>
             <h3>Captura</h3>
             <p>De una muestra FNA se extraen 30 características morfológicas del núcleo celular: radio, textura, perímetro, área y más.</p>
           </div>
-          <div class="flow__connector">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-          </div>
-          <div class="flow__step">
+          <div class="flow__step reveal-right">
             <div class="flow__num">02</div>
             <h3>Análisis</h3>
             <p>Un clasificador supervisado interpreta esas mediciones y reconoce patrones aprendidos de cientos de casos clínicos validados.</p>
           </div>
-          <div class="flow__connector">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-          </div>
-          <div class="flow__step">
+          <div class="flow__step reveal-left">
             <div class="flow__num">03</div>
             <h3>Diagnóstico</h3>
             <p>El sistema entrega una predicción clara — benigno o maligno — con nivel de confianza, para apoyar la decisión del especialista.</p>
@@ -1578,22 +1910,25 @@ textarea:focus-visible {
             esos patrones más allá del límite de la observación humana,
             anticipando lo que pronto podrá verse.
           </p>
-          <div class="kpi-grid stagger-children">
-            <div class="kpi">
+          <div class="kpi-grid">
+            <div class="kpi reveal-left">
+              <canvas class="kpi__bg" id="kpi-cells-0" aria-hidden="true"></canvas>
               <div class="kpi__dot"></div>
               <div>
                 <h4>Clasificación supervisada</h4>
                 <p>Algoritmos entrenados con casos clínicamente validados para distinguir tejido benigno y maligno.</p>
               </div>
             </div>
-            <div class="kpi">
+            <div class="kpi reveal-left">
+              <canvas class="kpi__bg" id="kpi-cells-1" aria-hidden="true"></canvas>
               <div class="kpi__dot"></div>
               <div>
                 <h4>Análisis morfológico</h4>
                 <p>Mide 30 características del núcleo: radio, textura, perímetro, área, suavidad y compacidad.</p>
               </div>
             </div>
-            <div class="kpi">
+            <div class="kpi reveal-left">
+              <canvas class="kpi__bg" id="kpi-cells-2" aria-hidden="true"></canvas>
               <div class="kpi__dot"></div>
               <div>
                 <h4>Dataset Wisconsin</h4>
@@ -1670,29 +2005,49 @@ textarea:focus-visible {
           <span class="eyebrow reveal-left">La aplicación</span>
           <h2 class="section__title reveal-up">Diseñada para <span class="accent-grad">decidir mejor.</span></h2>
           <p class="section__text reveal-up">Una interfaz limpia pensada para cualquier especialista. Ingresa las mediciones y obtén una respuesta clara en segundos. Sin curva de aprendizaje.</p>
-          <ul class="preview__points stagger-children">
-            <li>Resultado en menos de 2 segundos</li>
-            <li>Nivel de confianza visualizado</li>
-            <li>Compatible con cualquier dispositivo</li>
-            <li>Privacidad: sin almacenamiento de datos personales</li>
+          <ul class="preview__points">
+            <li class="reveal-left" style="transition-delay:.05s">Resultado en menos de 2 segundos</li>
+            <li class="reveal-right" style="transition-delay:.15s">Nivel de confianza visualizado</li>
+            <li class="reveal-left" style="transition-delay:.25s">Compatible con cualquier dispositivo</li>
+            <li class="reveal-right" style="transition-delay:.35s">Privacidad: sin almacenamiento de datos personales</li>
           </ul>
         </div>
         <div class="phone reveal-scale">
+          <div class="phone__glow--purple"></div>
           <div class="phone__shell">
             <div class="phone__notch"></div>
             <div class="phone__screen">
-              <div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px;background:var(--bg-2);">
-                <div style="font-family:'Space Grotesk',sans-serif;font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--blue);">Onco AI</div>
-                <div style="font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:700;text-align:center;line-height:1.3;">Análisis<br/>celular</div>
-                <div style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,oklch(0.63 0.20 245 / 0.15),oklch(0.63 0.20 295 / 0.15));border:1px solid oklch(0.63 0.20 245 / 0.4);display:flex;align-items:center;justify-content:center;">
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="url(#grad1)" stroke-width="1.5"><defs><linearGradient id="grad1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#5b9fff"/><stop offset="100%" stop-color="#a87fff"/></linearGradient></defs><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1.5" fill="url(#grad1)" stroke="none"/></svg>
+              <div class="phone-app">
+                <div class="phone-app__statusbar">
+                  <span id="phone-time">9:41</span>
+                  <div class="phone-app__statusbar-icons">
+                    <svg width="12" height="8" viewBox="0 0 12 8" fill="currentColor"><rect x="0" y="5" width="2" height="3" rx=".5"/><rect x="3" y="3" width="2" height="5" rx=".5"/><rect x="6" y="1" width="2" height="7" rx=".5"/><rect x="9" y="0" width="2" height="8" rx=".5"/></svg>
+                    <svg width="14" height="8" viewBox="0 0 14 8" fill="none" stroke="currentColor" stroke-width="1"><rect x=".5" y="1.5" width="11" height="5" rx="1.2"/><rect x="2" y="3" width="7" height="2" rx=".5" fill="currentColor"/><rect x="12" y="3" width="1.2" height="2" rx=".3" fill="currentColor"/></svg>
+                  </div>
                 </div>
-                <div style="width:100%;background:var(--bg-3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;">
-                  <div style="font-size:0.62rem;color:var(--text-dim);margin-bottom:4px;">Resultado</div>
-                  <div style="font-family:'Space Grotesk',sans-serif;font-size:0.9rem;font-weight:700;color:oklch(0.7 0.16 145);">Benigno</div>
-                  <div style="margin-top:6px;height:3px;background:var(--border);border-radius:2px;overflow:hidden;"><div style="width:78%;height:100%;background:linear-gradient(90deg,oklch(0.6 0.14 145),oklch(0.7 0.16 165));border-radius:2px;"></div></div>
+                <div class="phone-app__brand">Onco AI</div>
+                <div class="phone-app__title">Análisis<br/>celular</div>
+                <div class="phone-app__visual"></div>
+                <div class="phone-app__result">
+                  <div class="phone-app__result-row">
+                    <span class="phone-app__result-label">Resultado</span>
+                    <span class="phone-app__result-tag">96% conf.</span>
+                  </div>
+                  <div class="phone-app__result-val">Benigno</div>
+                  <div class="phone-app__result-bar">
+                    <div class="phone-app__result-bar-fill"></div>
+                  </div>
                 </div>
-                <div style="font-family:monospace;font-size:0.55rem;color:var(--text-dim);text-align:center;line-height:1.6;">radio: 13.2 · textura: 18.4<br/>perímetro: 85.1 · área: 533.9</div>
+                <div class="phone-app__metrics">
+                  <div class="phone-app__metric">
+                    <div class="phone-app__metric-label">Radio</div>
+                    <div class="phone-app__metric-val">13.2 µm</div>
+                  </div>
+                  <div class="phone-app__metric">
+                    <div class="phone-app__metric-label">Perímetro</div>
+                    <div class="phone-app__metric-val">85.1 µm</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1705,29 +2060,30 @@ textarea:focus-visible {
          7. APLICACIONES
     ══════════════════════════════════════════════════════ -->
     <section class="section section--applications" id="aplicaciones">
+      <canvas id="apps-bg-cells" class="section-bg-cells section-bg-cells--fade" aria-hidden="true"></canvas>
       <div class="container">
         <div class="apps__head">
           <span class="eyebrow reveal-up">Aplicaciones futuras</span>
           <h2 class="section__title section__title--center reveal-up">Una herramienta.<br /><span class="muted">Posibilidades infinitas.</span></h2>
           <p class="section__text section__text--center reveal-up">Onco AI es solo el comienzo. Aspiramos a construir herramientas que acompañen a la comunidad médica en diagnósticos más rápidos y precisos.</p>
         </div>
-        <div class="cards stagger-children">
-          <article class="card">
+        <div class="cards">
+          <article class="card reveal-left" style="transition-delay:.0s">
             <div class="card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
             <h3>Detección temprana</h3>
             <p>Anticipa indicios celulares en etapas donde la intervención clínica es más efectiva.</p>
           </article>
-          <article class="card">
+          <article class="card reveal-right" style="transition-delay:.12s">
             <div class="card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 19V6a2 2 0 0 1 2-2h9l5 5v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M9 13h6M9 16h4"/></svg></div>
             <h3>Apoyo a oncólogos</h3>
             <p>Una segunda mirada algorítmica que refuerza la precisión del diagnóstico humano.</p>
           </article>
-          <article class="card">
+          <article class="card reveal-left" style="transition-delay:.24s">
             <div class="card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h10M7 17h6"/></svg></div>
             <h3>Análisis poblacional</h3>
             <p>Procesa grandes bases de datos médicas para descubrir patrones a nivel poblacional.</p>
           </article>
-          <article class="card">
+          <article class="card reveal-right" style="transition-delay:.36s">
             <div class="card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M19 5l-3 3M5 19l3-3"/><circle cx="12" cy="12" r="3"/></svg></div>
             <h3>Investigación médica</h3>
             <p>Acelera estudios y publicaciones científicas con análisis reproducibles y transparentes.</p>
@@ -1887,7 +2243,7 @@ textarea:focus-visible {
   <footer class="footer">
     <div class="container footer__inner">
       <div class="footer__brand">
-        <img src="assets/logo.png" alt="Onco AI" class="footer__brand-logo" width="32" height="32" />
+                <svg class="footer__brand-logo" width="32" height="32" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="26" fill="url(#oncoLogoGrad)"/><circle cx="32" cy="32" r="11" fill="#06071e"/></svg>
         <span>Onco<span class="accent-grad">AI</span></span>
       </div>
       <p class="footer__legal">© <span id="year"></span> Onco AI · Proyecto de innovación tecnológica con fines educativos.</p>
@@ -2027,7 +2383,7 @@ function initMagneticCards() {
   });
 }
 
-/* ── Reveal on scroll — cinematic "pulled into place" ─────── */
+/* ── Reveal on scroll — cinematic "appears in place, reverses on scroll-up" ── */
 function initReveal() {
   const REVEAL_SELECTOR =
     '.reveal-up, .reveal-fade, .reveal-left, .reveal-right, ' +
@@ -2035,25 +2391,29 @@ function initReveal() {
   const els = $$(REVEAL_SELECTOR);
   if (!els.length) return;
 
+  // Every reveal is reversible — fades out the same way it came in.
   const io = new IntersectionObserver(entries => {
     entries.forEach(e => {
-      if (!e.isIntersecting) return;
-      const baseDelay = Number(e.target.dataset.delay || 0);
-      // Sibling-based stagger only when no explicit data-delay
-      let delay = baseDelay;
-      if (!e.target.dataset.delay && !e.target.classList.contains('stagger-children')) {
-        const parent = e.target.parentElement;
-        if (parent) {
-          const siblings = [...parent.children].filter(c =>
-            REVEAL_SELECTOR.split(', ').some(sel => c.matches(sel))
-          );
-          delay = siblings.indexOf(e.target) * 90;
+      if (e.isIntersecting) {
+        const baseDelay = Number(e.target.dataset.delay || 0);
+        let delay = baseDelay;
+        if (!e.target.dataset.delay && !e.target.classList.contains('stagger-children')) {
+          const parent = e.target.parentElement;
+          if (parent) {
+            const siblings = [...parent.children].filter(c =>
+              REVEAL_SELECTOR.split(', ').some(sel => c.matches(sel))
+            );
+            const idx = siblings.indexOf(e.target);
+            if (idx > 0) delay = idx * 80;
+          }
         }
+        if (delay) setTimeout(() => e.target.classList.add('visible'), delay);
+        else e.target.classList.add('visible');
+      } else if (e.intersectionRatio === 0) {
+        e.target.classList.remove('visible');
       }
-      setTimeout(() => e.target.classList.add('visible'), delay);
-      io.unobserve(e.target);
     });
-  }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+  }, { threshold: [0, 0.12, 0.5], rootMargin: '0px 0px -8% 0px' });
 
   els.forEach(el => io.observe(el));
 }
@@ -2276,6 +2636,7 @@ function initHeroScrub(cellCanvas) {
   gsap.registerPlugin(ScrollTrigger);
 
   const stageEls   = ['#stage0','#stage1','#stage2','#stage3'].map($);
+  const STAGE_COUNT = stageEls.length;
   const stageFill  = $('#heroStageFill');
   const scrollHint = $('#heroScrollHint');
   const mlTL = $('#mlTL'), mlTR = $('#mlTR'), mlBL = $('#mlBL'), mlBR = $('#mlBR');
@@ -2298,8 +2659,10 @@ function initHeroScrub(cellCanvas) {
   // Memoria del estado revelado para no re-aplicar clases
   const revealedState = [false, false, false, false];
 
-  // Reveal inicial: si ya estamos por encima del umbral al cargar
-  function applyReveals(p) {
+  // No-op kept for back-compat (each phase is exclusive now — see active/past handling).
+  function applyReveals(_p) {
+    // exclusivity handled by `active` / `past` classes below; nothing to do here.
+    return;
     for (let i = 0; i < stageEls.length; i++) {
       const el = stageEls[i];
       if (!el) continue;
@@ -2324,10 +2687,8 @@ function initHeroScrub(cellCanvas) {
       if (stageFill)  stageFill.style.width = (p * 100) + '%';
       if (scrollHint) scrollHint.style.opacity = p < 0.04 ? '1' : '0';
 
-      // Reveal secuencial — cada fase aparece sólo cuando la anterior terminó
-      applyReveals(p);
-
-      // Resaltado de la fase activa
+      // Resaltado de la fase activa — solo UNA fase visible a la vez.
+      // Las fases anteriores salen hacia arriba, las próximas siguen ocultas.
       let activeIdx = 0;
       for (let i = 0; i < STAGE_ACTIVE.length; i++) {
         if (p >= STAGE_ACTIVE[i][0] && p < STAGE_ACTIVE[i][1]) { activeIdx = i; break; }
@@ -2336,7 +2697,9 @@ function initHeroScrub(cellCanvas) {
         currentActive = activeIdx;
         for (let i = 0; i < stageEls.length; i++) {
           const el = stageEls[i];
-          if (el) el.classList.toggle('active', i === activeIdx);
+          if (!el) continue;
+          el.classList.toggle('active', i === activeIdx);
+          el.classList.toggle('past',   i <  activeIdx);
         }
       }
 
@@ -2352,106 +2715,217 @@ function initHeroScrub(cellCanvas) {
         mlBR.style.color = p > 0.78 ? 'oklch(0.60 0.22 20)' : 'oklch(0.56 0.016 255)';
         mlBR.classList.toggle('visible', showLabels);
       }
+
+      /* Hero stats — appear at start, stay SHARP until phase 04 begins (~0.80) */
+      const heroStats = document.querySelector('.hero__stats');
+      if (heroStats) {
+        heroStats.classList.toggle('in', p > 0.04);
+        const statBlocks = heroStats.querySelectorAll(':scope > div');
+        const thresholds = [0.10, 0.22, 0.36];
+        statBlocks.forEach((s, i) => {
+          s.classList.toggle('in', p >= (thresholds[i] || 0.5));
+        });
+        // Stats hold sharp longer than the title; only fade once phase 04 emerges.
+        const statsFadeOut = clamp((p - 0.82) / 0.14, 0, 1);
+        const statsDrift   = statsFadeOut * -40;
+        heroStats.style.setProperty('--stats-opacity', (1 - statsFadeOut).toFixed(3));
+        heroStats.style.setProperty('--stats-blur', (statsFadeOut * 6).toFixed(2) + 'px');
+        heroStats.style.setProperty('--stats-drift', statsDrift.toFixed(1) + 'px');
+      }
+
+      /* Hero main content (badge + title + sub + CTAs) fades — gone by phase 03 */
+      const heroMain = document.querySelector('.hero-left__main');
+      if (heroMain) {
+        const drift = p * -120;
+        const fadeOut = clamp((p - 0.10) / 0.40, 0, 1);
+        const opacity = 1 - fadeOut;
+        const blur = fadeOut * 6;
+        heroMain.style.transform = `translate3d(0, ${drift}px, 0)`;
+        heroMain.style.opacity = opacity.toFixed(3);
+        heroMain.style.filter = `blur(${blur.toFixed(2)}px)`;
+        heroMain.style.pointerEvents = opacity < 0.05 ? 'none' : '';
+      }
+      const heroTimeline = document.querySelector('.hero-timeline');
+      if (heroTimeline) {
+        const drift = p * -28;
+        heroTimeline.style.transform = `translate3d(0, ${drift}px, 0)`;
+      }
     }
   });
 
-  // Estado inicial — asegurar primera fase revelada en carga
-  applyReveals(0);
-  if (stageEls[0]) stageEls[0].classList.add('active');
+  // Estado inicial — solo la primera fase visible al cargar
+  for (let i = 0; i < stageEls.length; i++) {
+    const el = stageEls[i];
+    if (!el) continue;
+    el.classList.toggle('active', i === 0);
+    el.classList.remove('past');
+  }
   currentActive = 0;
 }
 
-/* ── Small cell canvas (technology section) ──────────────── */
-function initCellCanvas() {
-  const canvas = $('#cell-canvas');
+/* ── Cell canvas — active wandering + flee-mouse ─────────── */
+function initCellCanvas(opts = {}) {
+  const sel = opts.selector || '#cell-canvas';
+  const canvas = document.querySelector(sel);
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
-  let W, H, cells = [], t = 0;
+  let W = 0, H = 0, cells = [], t = 0;
 
-  // Mouse repulsion state — cells flee from cursor
+  const benignCount = opts.benignCount ?? 9;
+  const malignCount = opts.malignCount ?? 4;
+  const opacity     = opts.opacity ?? 1;
+  const showLegend  = opts.showLegend ?? true;
+  const useDocMouse = opts.useDocMouse ?? false;
+
   const mouse = { x: -9999, y: -9999, active: false };
   const REPEL_RADIUS = 130;
-  const REPEL_FORCE  = 1.6;
-  const RETURN_FORCE = 0.04;
-  const DAMPING      = 0.86;
+  const REPEL_FORCE  = 1.4;
+  const RETURN_FORCE = 0.018;
+  const DAMPING      = 0.92;
+  const WANDER_AMP   = 38;
+  const WANDER_SPEED = 0.0009;
 
-  function resize() { W = canvas.width = canvas.offsetWidth; H = canvas.height = canvas.offsetHeight; }
+  function resize() {
+    W = canvas.width  = canvas.offsetWidth  * (window.devicePixelRatio || 1);
+    H = canvas.height = canvas.offsetHeight * (window.devicePixelRatio || 1);
+    canvas.style.imageRendering = 'auto';
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+  }
 
   function makeCell(benign) {
-    const x0 = 30 + Math.random()*(W-60);
-    const y0 = 30 + Math.random()*(H-60);
+    const x0 = 30 + Math.random() * (W - 60);
+    const y0 = 30 + Math.random() * (H - 60);
+    const dpr = (window.devicePixelRatio || 1);
     return {
       x: x0, y: y0, x0, y0, vx: 0, vy: 0,
-      r: benign ? 8+Math.random()*10 : 12+Math.random()*18,
-      benign, phase: Math.random()*Math.PI*2,
-      speed: 0.003+Math.random()*0.005, wobble: 0.05+Math.random()*0.15,
-      hue: benign ? 210+Math.random()*40 : 260+Math.random()*40,
+      r: (benign ? 8 + Math.random() * 10 : 12 + Math.random() * 18) * dpr,
+      benign, phase: Math.random() * Math.PI * 2,
+      speed: 0.003 + Math.random() * 0.005,
+      wobble: 0.05 + Math.random() * 0.15,
+      hue: benign ? 210 + Math.random() * 40 : 260 + Math.random() * 40,
+      wPhaseX: Math.random() * Math.PI * 2,
+      wPhaseY: Math.random() * Math.PI * 2,
+      wFreqX: 0.6 + Math.random() * 0.9,
+      wFreqY: 0.6 + Math.random() * 0.9,
     };
   }
 
   function init() {
     resize(); cells = [];
-    for (let i=0;i<9;i++) cells.push(makeCell(true));
-    for (let i=0;i<4;i++) cells.push(makeCell(false));
+    for (let i = 0; i < benignCount; i++) cells.push(makeCell(true));
+    for (let i = 0; i < malignCount; i++) cells.push(makeCell(false));
   }
 
-  canvas.addEventListener('pointermove', (e) => {
+  function updateMouseFromEvent(e) {
     const rect = canvas.getBoundingClientRect();
-    mouse.x = e.clientX - rect.left;
-    mouse.y = e.clientY - rect.top;
-    mouse.active = true;
-  }, { passive: true });
-  canvas.addEventListener('pointerleave', () => { mouse.active = false; });
+    const dpr = (window.devicePixelRatio || 1);
+    const cx = (e.clientX - rect.left) * dpr;
+    const cy = (e.clientY - rect.top) * dpr;
+    if (useDocMouse) {
+      // Mouse always tracked relative to canvas, even when outside
+      mouse.x = cx; mouse.y = cy;
+      // Active only if reasonably close
+      const margin = REPEL_RADIUS * 1.2;
+      mouse.active = cx > -margin && cx < W + margin && cy > -margin && cy < H + margin;
+    } else {
+      if (e.target === canvas || canvas.contains(e.target)) {
+        mouse.x = cx; mouse.y = cy; mouse.active = true;
+      }
+    }
+  }
+
+  if (useDocMouse) {
+    document.addEventListener('pointermove', updateMouseFromEvent, { passive: true });
+    document.addEventListener('pointerleave', () => { mouse.active = false; });
+  } else {
+    canvas.addEventListener('pointermove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = (window.devicePixelRatio || 1);
+      mouse.x = (e.clientX - rect.left) * dpr;
+      mouse.y = (e.clientY - rect.top) * dpr;
+      mouse.active = true;
+    }, { passive: true });
+    canvas.addEventListener('pointerleave', () => { mouse.active = false; });
+  }
 
   function draw() {
-    ctx.clearRect(0,0,W,H);
+    if (!visible) { rafId = 0; return; }
+    ctx.clearRect(0, 0, W, H);
     t += 0.012;
+    ctx.globalAlpha = opacity;
     cells.forEach(c => {
       c.phase += c.speed;
+
+      // Active wandering — gently drift the anchor
+      const ax = c.x0 + Math.sin(t * c.wFreqX + c.wPhaseX) * WANDER_AMP * (window.devicePixelRatio || 1);
+      const ay = c.y0 + Math.cos(t * c.wFreqY + c.wPhaseY) * WANDER_AMP * (window.devicePixelRatio || 1);
 
       // Repel from cursor
       if (mouse.active) {
         const dx = c.x - mouse.x, dy = c.y - mouse.y;
-        const dist2 = dx*dx + dy*dy;
-        if (dist2 < REPEL_RADIUS * REPEL_RADIUS && dist2 > 0.5) {
-          const dist = Math.sqrt(dist2);
-          const f = (1 - dist / REPEL_RADIUS) * REPEL_FORCE;
+        const d2 = dx * dx + dy * dy;
+        const RR = REPEL_RADIUS * (window.devicePixelRatio || 1);
+        if (d2 < RR * RR && d2 > 0.5) {
+          const dist = Math.sqrt(d2);
+          const f = (1 - dist / RR) * REPEL_FORCE;
           c.vx += (dx / dist) * f;
           c.vy += (dy / dist) * f;
         }
       }
-      // Spring back to original position
-      c.vx += (c.x0 - c.x) * RETURN_FORCE;
-      c.vy += (c.y0 - c.y) * RETURN_FORCE;
+      // Spring back to wandering anchor
+      c.vx += (ax - c.x) * RETURN_FORCE;
+      c.vy += (ay - c.y) * RETURN_FORCE;
       c.vx *= DAMPING; c.vy *= DAMPING;
       c.x += c.vx; c.y += c.vy;
-      const rx = c.r*(1+Math.sin(c.phase)*c.wobble);
-      const ry = c.r*(1+Math.cos(c.phase*1.3)*c.wobble*0.8);
-      const grad = ctx.createRadialGradient(c.x,c.y,0,c.x,c.y,rx*1.5);
-      if(c.benign){
-        grad.addColorStop(0,`hsla(${c.hue},80%,75%,0.25)`);
-        grad.addColorStop(0.7,`hsla(${c.hue},60%,55%,0.12)`);
-        grad.addColorStop(1,`hsla(${c.hue},50%,45%,0.0)`);
+
+      const rx = c.r * (1 + Math.sin(c.phase) * c.wobble);
+      const ry = c.r * (1 + Math.cos(c.phase * 1.3) * c.wobble * 0.8);
+      const grad = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, rx * 1.5);
+      if (c.benign) {
+        grad.addColorStop(0,   `hsla(${c.hue},80%,75%,0.25)`);
+        grad.addColorStop(0.7, `hsla(${c.hue},60%,55%,0.12)`);
+        grad.addColorStop(1,   `hsla(${c.hue},50%,45%,0)`);
       } else {
-        grad.addColorStop(0,`hsla(${c.hue},70%,65%,0.3)`);
-        grad.addColorStop(0.6,`hsla(${c.hue},55%,45%,0.15)`);
-        grad.addColorStop(1,`hsla(${c.hue},45%,35%,0.0)`);
+        grad.addColorStop(0,   `hsla(${c.hue},70%,65%,0.3)`);
+        grad.addColorStop(0.6, `hsla(${c.hue},55%,45%,0.15)`);
+        grad.addColorStop(1,   `hsla(${c.hue},45%,35%,0)`);
       }
-      ctx.beginPath(); ctx.ellipse(c.x,c.y,rx*1.5,ry*1.5,c.phase*0.2,0,Math.PI*2); ctx.fillStyle=grad; ctx.fill();
-      ctx.beginPath(); ctx.ellipse(c.x,c.y,rx,ry,c.phase*0.2,0,Math.PI*2);
+      ctx.beginPath(); ctx.ellipse(c.x, c.y, rx * 1.5, ry * 1.5, c.phase * 0.2, 0, Math.PI * 2); ctx.fillStyle = grad; ctx.fill();
+      ctx.beginPath(); ctx.ellipse(c.x, c.y, rx, ry, c.phase * 0.2, 0, Math.PI * 2);
       ctx.strokeStyle = c.benign ? `hsla(${c.hue},80%,70%,0.45)` : `hsla(${c.hue},70%,65%,0.55)`;
-      ctx.lineWidth = c.benign ? 1 : 1.5; ctx.stroke();
-      const nr = c.r*(c.benign?0.38:0.52);
-      ctx.beginPath(); ctx.ellipse(c.x+Math.sin(c.phase*0.7)*c.r*0.1, c.y+Math.cos(c.phase*0.5)*c.r*0.1, nr, nr*0.85, 0, 0, Math.PI*2);
-      ctx.fillStyle = c.benign ? `hsla(${c.hue},70%,60%,0.6)` : `hsla(${c.hue-10},65%,55%,0.7)`; ctx.fill();
+      ctx.lineWidth = (c.benign ? 1 : 1.5) * (window.devicePixelRatio || 1); ctx.stroke();
+      const nr = c.r * (c.benign ? 0.38 : 0.52);
+      ctx.beginPath(); ctx.ellipse(
+        c.x + Math.sin(c.phase * 0.7) * c.r * 0.1,
+        c.y + Math.cos(c.phase * 0.5) * c.r * 0.1,
+        nr, nr * 0.85, 0, 0, Math.PI * 2);
+      ctx.fillStyle = c.benign ? `hsla(${c.hue},70%,60%,0.6)` : `hsla(${c.hue - 10},65%,55%,0.7)`; ctx.fill();
     });
-    ctx.font='500 11px Inter,sans-serif';
-    ctx.fillStyle='rgba(150,160,200,0.55)'; ctx.fillText('● Benigno',16,H-30);
-    ctx.fillStyle='rgba(180,140,255,0.55)'; ctx.fillText('● Maligno',16,H-14);
-    requestAnimationFrame(draw);
+    if (showLegend) {
+      ctx.globalAlpha = 1;
+      const dpr = (window.devicePixelRatio || 1);
+      ctx.font = `500 ${11 * dpr}px Inter,sans-serif`;
+      ctx.fillStyle = 'rgba(150,160,200,0.55)'; ctx.fillText('● Benigno', 16 * dpr, H - 30 * dpr);
+      ctx.fillStyle = 'rgba(180,140,255,0.55)'; ctx.fillText('● Maligno', 16 * dpr, H - 14 * dpr);
+    }
+    ctx.globalAlpha = 1;
+    rafId = requestAnimationFrame(draw);
   }
-  init(); draw();
-  window.addEventListener('resize',()=>{ resize(); init(); });
+
+  // Pause RAF when offscreen
+  let visible = true;
+  let rafId = 0;
+  const vio = new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      visible = en.isIntersecting;
+      if (visible && !rafId) rafId = requestAnimationFrame(draw);
+    });
+  }, { threshold: 0 });
+  vio.observe(canvas);
+
+  init();
+  rafId = requestAnimationFrame(draw);
+  window.addEventListener('resize', () => { resize(); init(); });
 }
 
 /* ── Demo interactiva ────────────────────────────────────── */
@@ -2509,6 +2983,38 @@ function initRoadmap() {
   io.observe(prog.parentElement);
 }
 
+/* ── Contact form — sends a real email via mailto ────────── */
+function initContactForm() {
+  const form = document.getElementById('contact-form');
+  if (!form) return;
+  const note = document.getElementById('contact-note');
+  const btn  = document.getElementById('contact-submit');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const data = new FormData(form);
+    const nombre  = (data.get('nombre')  || '').toString().trim();
+    const email   = (data.get('email')   || '').toString().trim();
+    const asunto  = (data.get('asunto')  || '').toString().trim();
+    const mensaje = (data.get('mensaje') || '').toString().trim();
+    if (!nombre || !email || !mensaje) {
+      if (note) { note.textContent = 'Por favor completa los campos requeridos.'; note.style.color = 'oklch(0.65 0.18 25)'; }
+      return;
+    }
+    const to = form.dataset.mailTo || 'contacto@oncoai.app';
+    const subject = asunto ? `[Onco AI] ${asunto}` : `[Onco AI] Mensaje de ${nombre}`;
+    const body = `Nombre: ${nombre}\nEmail: ${email}\n` + (asunto ? `Asunto: ${asunto}\n` : '') + `\nMensaje:\n${mensaje}\n`;
+    const mailto = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailto;
+    if (btn) {
+      const lbl = btn.querySelector('.btn__label');
+      if (lbl) lbl.textContent = 'Abriendo correo…';
+      btn.disabled = true;
+      setTimeout(() => { if (lbl) lbl.textContent = '✓ Mensaje listo para enviar'; btn.disabled = false; }, 1400);
+    }
+    if (note) { note.textContent = `Se abrió tu cliente de correo con el mensaje listo para ${to}.`; note.style.color = ''; }
+  });
+}
+
 /* ── Smooth anchors ──────────────────────────────────────── */
 function initSmoothScroll() {
   document.querySelectorAll('a[href^="#"]').forEach(a => {
@@ -2527,6 +3033,85 @@ function initSmoothScroll() {
   });
 }
 
+/* ── Section bg-cells fade ───────────────────────────────── */
+function initSectionBgFade() {
+  const targets = $$('.section-bg-cells--fade');
+  if (!targets.length) return;
+  targets.forEach(c => {
+    const section = c.closest('section');
+    if (!section) return;
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        c.classList.toggle('in', e.isIntersecting && e.intersectionRatio > 0.05);
+      });
+    }, { threshold: [0, 0.05, 0.2, 0.5] });
+    io.observe(section);
+  });
+}
+
+/* ── Phone preview: real-time clock + scroll-driven rotation ──
+   Rotates the device frame from a strong angle to its rest pose
+   (tilt-rx / tilt-ry / tilt-rz set on .phone via CSS vars) as the
+   preview section enters and leaves the viewport. Reversible —
+   scroll back up and the phone tilts away again.
+─────────────────────────────────────────────────────────── */
+function initPhonePreview() {
+  /* Live clock — updates the status bar with the user's current time */
+  const timeEl = document.getElementById('phone-time');
+  if (timeEl) {
+    const fmt = () => {
+      const d = new Date();
+      const h = d.getHours();
+      const m = d.getMinutes();
+      timeEl.textContent = h + ':' + (m < 10 ? '0' + m : m);
+    };
+    fmt();
+    // Re-sync on the minute, then every 60s.
+    const ms = (60 - new Date().getSeconds()) * 1000;
+    setTimeout(() => { fmt(); setInterval(fmt, 60000); }, ms);
+  }
+
+  /* Scroll-driven 3D rotation */
+  const phone = document.querySelector('.phone');
+  const section = document.getElementById('preview');
+  if (!phone || !section) return;
+
+  // Resting pose (when fully scrolled into view)
+  const REST_RX =  2;
+  const REST_RY = -6;
+  const REST_RZ =  0;
+  // Start pose (when the section is just entering / leaving)
+  const START_RX = 28;
+  const START_RY = 55;
+  const START_RZ = -10;
+
+  let raf = 0;
+  function update() {
+    raf = 0;
+    const rect = section.getBoundingClientRect();
+    const vh = window.innerHeight || 1;
+    // Progress from 0 (section just entering bottom) → 1 (centered) → reverses past center.
+    // We map only the entry half so the phone "rotates into place" as you scroll down,
+    // and "unwinds" as you scroll back up.
+    const sectionCenter = rect.top + rect.height * 0.45;
+    // 0 when sectionCenter is at viewport bottom, 1 when at viewport center.
+    let p = 1 - clamp((sectionCenter - vh * 0.45) / (vh * 0.55), 0, 1);
+    // Smooth easing (easeOutCubic)
+    const e = 1 - Math.pow(1 - p, 3);
+    const rx = lerp(START_RX, REST_RX, e);
+    const ry = lerp(START_RY, REST_RY, e);
+    const rz = lerp(START_RZ, REST_RZ, e);
+    phone.style.setProperty('--phone-rx', rx.toFixed(2) + 'deg');
+    phone.style.setProperty('--phone-ry', ry.toFixed(2) + 'deg');
+    phone.style.setProperty('--phone-rz', rz.toFixed(2) + 'deg');
+  }
+  function schedule() { if (!raf) raf = requestAnimationFrame(update); }
+
+  window.addEventListener('scroll', schedule, { passive: true });
+  window.addEventListener('resize', schedule, { passive: true });
+  update();
+}
+
 /* ── Boot ────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
   initCursor();
@@ -2539,9 +3124,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const cellCanvas = initHeroCellCanvas();
   initHeroScrub(cellCanvas);
   initCellCanvas();
+  initCellCanvas({ selector: '#kpi-cells-0', benignCount: 5, malignCount: 2, opacity: 0.55, showLegend: false, useDocMouse: true });
+  initCellCanvas({ selector: '#kpi-cells-1', benignCount: 5, malignCount: 2, opacity: 0.55, showLegend: false, useDocMouse: true });
+  initCellCanvas({ selector: '#kpi-cells-2', benignCount: 5, malignCount: 2, opacity: 0.55, showLegend: false, useDocMouse: true });
+  initCellCanvas({ selector: '#apps-bg-cells', benignCount: 18, malignCount: 7, opacity: 0.45, showLegend: false, useDocMouse: true });
+  initSectionBgFade();
   initDemo();
   initRoadmap();
+  initContactForm();
   initSmoothScroll();
+  initPhonePreview();
 });
 </script>
 </body>
